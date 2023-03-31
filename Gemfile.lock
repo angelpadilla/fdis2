@@ -1,0 +1,26 @@
+PATH
+  remote: .
+  specs:
+    fdis (0.1.14)
+      nokogiri (= 1.13.9)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    minitest (5.16.3)
+    nokogiri (1.13.9-x86_64-linux)
+      racc (~> 1.4)
+    racc (1.6.0)
+    rake (13.0.6)
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  bundler (~> 2.3.24)
+  fdis!
+  minitest (~> 5.16.3)
+  rake (~> 13.0.6)
+
+BUNDLED WITH
+   2.3.24
