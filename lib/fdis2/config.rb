@@ -1,4 +1,4 @@
-module Fdis
+module Fdis2
   class Config
     attr_accessor :production_token, :dev_token, :doc_cer_path, :doc_key_path
     attr_reader :pem, :serial, :cadena, :key_pass, :pem_cadena

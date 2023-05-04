@@ -1,6 +1,6 @@
-require "fdis/version"
-require "fdis/config"
-require "fdis/facturacion"
+require "fdis2/version"
+require "fdis2/config"
+require "fdis2/facturacion"
 
 require 'openssl'
 require 'net/http'
@@ -12,6 +12,6 @@ require 'fileutils'
 # External gems
 require 'nokogiri'
 
-module Fdis
+module Fdis2
 
 end

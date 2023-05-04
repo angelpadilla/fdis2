@@ -1,17 +1,17 @@
 
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "fdis/version"
+require "fdis2/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "fdis"
-  spec.version       = Fdis::VERSION
+  spec.name          = "fdis2"
+  spec.version       = Fdis2::VERSION
   spec.authors       = ["Angel Padilla"]
   spec.email         = ["angelpadillam@gmail.com"]
 
   spec.summary       = %q{Gem used to fetch the CFDIS Web API}
   spec.description   = %q{Gem used to fetch the CFDIS API for the mexican billing system (SAT).}
-  spec.homepage      = "https://github.com/angelpadilla/fdis"
+  spec.homepage      = "https://github.com/angelpadilla/fdis2"
   spec.license       = "MIT"
 
   spec.metadata['allowed_push_host'] = "https://rubygems.org"

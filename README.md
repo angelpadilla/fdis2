@@ -1,4 +1,4 @@
-# Fdis 0.1.0
+# Fdis 0.1.34
 
 This is a ruby library that helps to interact with the Smarted Web API and the mexican billing system (SAT).
 
@@ -37,7 +37,7 @@ Initialize a new object with your config arguments
     production = (Boolean) # environment, optional, default is -false-
 
     # The object
-    obj = Fdis::Facturacion.new(production_token, development_token, rfc, razon_social, regimen, path_to_key, key_passphrase, path_to_cer, production) 
+    obj = Fdis2::Facturacion.new(production_token, development_token, rfc, razon_social, regimen, path_to_key, key_passphrase, path_to_cer, production) 
 ```
 
 ## Development

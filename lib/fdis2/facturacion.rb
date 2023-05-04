@@ -1,5 +1,5 @@
 
-module Fdis
+module Fdis2
 	class Facturacion < Config
 
 		def comp_pago(params={})
@@ -30,18 +30,20 @@ module Fdis
 			# 	]
 			# }
 
-			puts " Datos --------"
-			puts "-- Total params: #{params[:total]}"
-			puts "--- Line items: "
+			puts "----- Fdis: Facturacion::com_pago"
+			puts "--- Fdis: Total venta: #{params[:total]}"
+			puts "--- Fdis: Monto de pago a procesar: #{params[:monto_pago]}"
+			puts "--- Fdis: Saldo insoluto anterior: #{params[:saldo_anterior]}"
+			puts "--- Fdis: Line items: "
 			params[:line_items].each do |line|
-				puts "--- #{line[:monto]}"
+				puts "-- #{line[:monto]}"
 			end
 			lines_total = params[:line_items].inject(0) {|sum, x| sum + x[:monto].to_f}
 
-			puts "-- Suma de line_items: #{lines_total.round(2)}"
+			puts "--- Fdis: Suma de lineas: #{lines_total}"
 
-			if (lines_total.round(2) > params[:total].to_f)
-				raise 'Error Fdis - la suma de los complementos de pago es mayor al total reportado' 
+			if (lines_total > params[:total].to_f)
+				raise 'Error Fdis - la suma de los complementos de pago es mayor al total de la venta' 
 			end
 
 			unless params[:time_pago] and params[:time_pago].size > 0
@@ -116,7 +118,7 @@ module Fdis
 
 
 			# totales
-			total = params[:monto_pago].to_f
+			total = params[:monto_pago].to_f.abs
 			iva_id = params.fetch(:tasa_iva, 16)
 
 			pago_totales = xml.at_xpath("//pago20:Totales")
@@ -161,11 +163,11 @@ module Fdis
 			child_pago_relacionado['Folio'] = params[:folio]
 			child_pago_relacionado['EquivalenciaDR'] = "1"
 
-			saldo_anterior = params[:saldo_anterior].to_f
+			saldo_anterior = params[:saldo_anterior].to_f.abs
 
 			child_pago_relacionado['ImpSaldoAnt'] = saldo_anterior.round(2).to_s
 			child_pago_relacionado['ImpPagado'] = total.round(2).to_s
-			child_pago_relacionado['ImpSaldoInsoluto'] = (saldo_anterior - total).round(2).to_s
+			child_pago_relacionado['ImpSaldoInsoluto'] = (saldo_anterior - total).round(2).abs.to_s
 			child_pago_relacionado['ObjetoImpDR'] = '02'
 
 			impuestos_dr = Nokogiri::XML::Node.new "pago20:ImpuestosDR", xml
@@ -179,13 +181,13 @@ module Fdis
 			traslado['TipoFactorDR'] = 'Tasa'
 			traslado['ImpuestoDR'] = '002'
 
-			traslado['BaseDR'] =  subtotal.round(4).to_s #subtotal
-			traslado['ImporteDR'] = iva.round(4).to_s # tax
+			traslado['BaseDR'] =  subtotal.round(2).to_s #subtotal
+			traslado['ImporteDR'] = iva.round(2).to_s # tax
 
-			traslado_p['BaseP'] = subtotal.round(4).to_s
+			traslado_p['BaseP'] = subtotal.round(2).to_s
 			traslado_p['ImpuestoP'] = '002'
 			traslado_p['TipoFactorP'] = 'Tasa'
-			traslado_p['ImporteP'] = iva.round(4).to_s # tax
+			traslado_p['ImporteP'] = iva.round(2).to_s # tax
 
 			if iva_id == 16
 				traslado['TasaOCuotaDR'] = '0.160000'
@@ -234,7 +236,7 @@ module Fdis
 			base64_xml = Base64.encode64(xml.to_xml)
 
 			# haciendo llamada a API
-			uri = URI("#{Fdis::UrlPro}/Timbrar40")
+			uri = URI("#{Fdis2::UrlPro}/Timbrar40")
 			request = Net::HTTP::Post.new(uri)
 			# request.basic_auth(token, "")
 			request.content_type = "application/json"
@@ -329,7 +331,7 @@ module Fdis
 			# }
 
 
-			uri = URI(Fdis::UrlCancel)
+			uri = URI(Fdis2::UrlCancel)
 			request = Net::HTTP::Post.new(uri)
 			request.content_type = "application/json"
 
@@ -467,8 +469,14 @@ module Fdis
 			comprobante['Serie'] = params.fetch(:series, 'FA').to_s
 			comprobante['Folio'] = params.fetch(:folio).to_s
 			comprobante['Fecha'] = time.to_s
-			comprobante['FormaPago'] = params.fetch(:forma_pago, '01')
 			comprobante['MetodoPago'] = params.fetch(:metodo_pago, 'PUE')
+			comprobante['FormaPago'] = params.fetch(:forma_pago, '01')
+			
+			if comprobante['MetodoPago'] == 'PPD'
+				comprobante['FormaPago'] = '99'
+			end
+
+
 			comprobante['LugarExpedicion'] = params.fetch(:cp, '47180')
 			comprobante['NoCertificado'] = @serial
 			comprobante['Certificado'] = @cadena
@@ -701,7 +709,7 @@ module Fdis
 			base64_xml = Base64.encode64(xml.to_xml)
 
 			# haciendo llamada a API
-			uri = URI("#{Fdis::UrlPro}/Timbrar40")
+			uri = URI("#{Fdis2::UrlPro}/Timbrar40")
 			request = Net::HTTP::Post.new(uri)
 			request.content_type = "application/json"
 			request.body = JSON.dump({
