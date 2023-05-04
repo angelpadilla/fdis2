@@ -1,6 +1,6 @@
-# Fdis 0.1.34
+# Fdis 0.1.45
 
-This is a ruby library that helps to interact with the Smarted Web API and the mexican billing system (SAT).
+This is a ruby library that helps to interact with the the mexican billing system (SAT).
 
 
 ## Installation
@@ -8,7 +8,7 @@ This is a ruby library that helps to interact with the Smarted Web API and the m
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'fdis'
+gem 'fdis2'
 ```
 
 And then execute:
