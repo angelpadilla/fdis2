@@ -428,7 +428,7 @@ module Fdis2
 			#  			descripcion: 'Servicio mano de obra',
 			#  			valor_unitario: 100.00,
 			#  			descuento: 0.00,
-			#  			tax_included: true,
+			#  			tax: 16.0 o 0.0,
 			#       retencion_iva: 0, 6, 16
 			#  			# Optional parameters
 			# 		},
@@ -520,9 +520,10 @@ module Fdis2
 			suma_iva = 0.00
 			suma_ret = 0.00
 
-			iva_id = params.fetch(:tasa_iva, 16)
-
+			
 			line_items.each do |line|
+				iva_id = line.fetch(:tax, 16.0)
+
 				ret_iva = line.fetch(:retencion_iva, 0)
 
 				cantidad = line[:cantidad].to_f
@@ -539,17 +540,23 @@ module Fdis2
 				
 				total_acumulator = cantidad * line[:valor_unitario].to_f
 
-				if iva_id == 16
-					valor_unitario = (line[:valor_unitario].to_f) / 1.16
+				if iva_id > 0
+					tax_factor = (iva_id / 100) + 1
+					valor_unitario = (line[:valor_unitario].to_f) / tax_factor
 				else
 					valor_unitario = line[:valor_unitario].to_f
 				end
 
-				total_line = cantidad * valor_unitario
+				# if iva_id == 16
+				# 	valor_unitario = (line[:valor_unitario].to_f) / 1.16
+				# else
+				# 	valor_unitario = line[:valor_unitario].to_f
+				# end
 
-				importe_iva = total_acumulator - total_line 
+				subtotal_line = cantidad * valor_unitario
+				importe_iva = total_acumulator - subtotal_line 
 
-				subtotal += total_line 
+				subtotal += subtotal_line 
 				suma_iva += importe_iva
 				suma_total += total_acumulator 
 
@@ -557,7 +564,7 @@ module Fdis2
 				## calculando retencion de IVA en caso de tener
 				if ret_iva > 0
 					if ret_iva == 6
-							importe_ret_linea = (total_line * 1.06) - total_line
+							importe_ret_linea = (subtotal_line * 1.06) - subtotal_line
 					elsif ret_iva == 16
 						importe_ret_linea = importe_iva
 					end
@@ -577,7 +584,7 @@ module Fdis2
 				child_concepto['Descripcion'] = line[:descripcion].to_s
 				child_concepto['Cantidad'] = cantidad.to_s
 				child_concepto['ValorUnitario'] = valor_unitario.round(4).to_s
-				child_concepto['Importe'] = total_line.round(4).to_s
+				child_concepto['Importe'] = subtotal_line.round(4).to_s
 				child_concepto['ObjetoImp'] = '02'
 
 
@@ -591,14 +598,15 @@ module Fdis2
 				child_traslado = Nokogiri::XML::Node.new "cfdi:Traslado", xml
 				child_traslado['Impuesto'] = '002'
 				child_traslado['TipoFactor'] = "Tasa"
-				child_traslado['Base'] = total_line.round(4).to_s
+				child_traslado['Base'] = subtotal_line.round(4).to_s
 
-				if iva_id == 0
+				if iva_id > 0
+					tasa_cuota = (iva_id / 100).round(6)
+					child_traslado['Importe'] = importe_iva.round(4).to_s
+					child_traslado['TasaOCuota'] = tasa_cuota.to_s
+				else
 					child_traslado['Importe'] = "0.00"
 					child_traslado['TasaOCuota'] = '0.000000'
-				else
-					child_traslado['Importe'] = importe_iva.round(4).to_s
-					child_traslado['TasaOCuota'] = '0.160000'
 				end
 
 
@@ -612,7 +620,7 @@ module Fdis2
 				if ret_iva > 0
 					child_retenciones = Nokogiri::XML::Node.new "cfdi:Retenciones", xml
 					child_retencion = Nokogiri::XML::Node.new "cfdi:Retencion", xml
-					child_retencion['Base'] = total_line.round(4).to_s
+					child_retencion['Base'] = subtotal_line.round(4).to_s
 					child_retencion['Impuesto'] = '002'
 					child_retencion['TipoFactor'] = "Tasa"
 
@@ -641,13 +649,13 @@ module Fdis2
 			comprobante['SubTotal'] = subtotal.round(2).to_s
 
 
-			## Poblanco cfdi:Impuestos
+			## Poblando cfdi:Impuestos
 			impuestos['TotalImpuestosRetenidos'] = suma_ret.round(2).to_s if suma_ret > 0
 
-			if iva_id == 0
-				impuestos['TotalImpuestosTrasladados'] = "0.00"
-			else
+			if suma_iva > 0
 				impuestos['TotalImpuestosTrasladados'] = suma_iva.round(2).to_s
+			else
+				impuestos['TotalImpuestosTrasladados'] = "0.00"
 			end
 
 
@@ -673,12 +681,12 @@ module Fdis2
 			traslado_child['TipoFactor'] = 'Tasa'
 			traslado_child['Base'] = subtotal.round(2)
 
-			if iva_id == 0
-				traslado_child['Importe'] = "0.00"
-				traslado_child['TasaOCuota'] = '0.000000'
-			else
+			if suma_iva > 0
 				traslado_child['Importe'] = suma_iva.round(2).to_s
 				traslado_child['TasaOCuota'] = '0.160000'
+			else
+				traslado_child['Importe'] = "0.00"
+				traslado_child['TasaOCuota'] = '0.000000'
 			end
 
 			traslados.add_child(traslado_child)
