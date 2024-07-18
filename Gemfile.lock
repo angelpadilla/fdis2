@@ -1,21 +1,20 @@
 PATH
   remote: .
   specs:
-    fdis2 (0.1.34)
-      nokogiri (= 1.13.9)
+    fdis2 (0.1.53)
+      nokogiri (= 1.14.5)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    mini_portile2 (2.8.1)
     minitest (5.16.3)
-    nokogiri (1.13.9)
-      mini_portile2 (~> 2.8.0)
+    nokogiri (1.14.5-arm64-darwin)
       racc (~> 1.4)
-    racc (1.6.2)
+    racc (1.8.0)
     rake (13.0.6)
 
 PLATFORMS
+  arm64-darwin-23
   x86_64-linux
 
 DEPENDENCIES
