@@ -402,7 +402,7 @@ module Fdis2
 
 
 		def timbra_doc(params={})
-			### sample params
+			### sample paramss
 			# 
 			# params = {
 			# 	moneda: 'MXN',
