@@ -416,7 +416,6 @@ module Fdis2
 			# 	receptor_rfc: '',
 			# 	receptor_regimen: '',
 			# 	uso_cfdi: 'G03',
-			# 	tasa_iva: 0, 16,
 			#   time: "%Y-%m-%dT%H:%M:%S",
 			# 	line_items: [
 			# 		{
