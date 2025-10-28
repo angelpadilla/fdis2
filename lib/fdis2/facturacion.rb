@@ -249,6 +249,7 @@ module Fdis2
 
 			req_options = {
 	      use_ssl: uri.scheme == "https",
+				verify_mode: OpenSSL::SSL::VERIFY_NONE
 	    }
 
 			json_response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
@@ -350,6 +351,7 @@ module Fdis2
 
 			req_options = {
 	      use_ssl: uri.scheme == "https",
+				verify_mode: OpenSSL::SSL::VERIFY_NONE
 	    }
 
 			json_response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
@@ -727,6 +729,7 @@ module Fdis2
 
 			req_options = {
 	      use_ssl: uri.scheme == "https",
+				verify_mode: OpenSSL::SSL::VERIFY_NONE
 	    }
 
 			json_response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
