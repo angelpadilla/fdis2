@@ -523,7 +523,7 @@ module Fdis2
 
 			
 			line_items.each do |line|
-				iva_id = line.fetch(:tax, 16.0)
+				iva_id = line.fetch(:tax, 16.0).to_f
 
 				ret_iva = line.fetch(:retencion_iva, 0)
 
@@ -602,9 +602,9 @@ module Fdis2
 				child_traslado['Base'] = subtotal_line.round(4).to_s
 
 				if iva_id > 0
-					tasa_cuota = (iva_id / 100).round(6)
+					tasa_cuota = (iva_id / 100)
 					child_traslado['Importe'] = importe_iva.round(4).to_s
-					child_traslado['TasaOCuota'] = tasa_cuota.to_s
+					child_traslado['TasaOCuota'] = sprintf("%.6f", tasa_cuota)
 				else
 					child_traslado['Importe'] = "0.00"
 					child_traslado['TasaOCuota'] = '0.000000'
